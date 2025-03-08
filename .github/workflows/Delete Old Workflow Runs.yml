@@ -1,0 +1,27 @@
+name: Delete Old Workflow Runs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每天午夜执行一次
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up GitHub CLI
+        run: |
+          echo "Installing GitHub CLI..."
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+      - name: Delete Old Workflow Runs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Deleting old workflow runs..."
+          gh run list --limit 100 --json databaseId,status | jq -r '.[] | select(.status=="completed") | .databaseId' | xargs -I {} gh run delete {}
