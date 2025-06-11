@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '15 * * * *' # Executes at 15 minutes past the hour.
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,31 +29,25 @@ jobs:
           
       - name: Commit Files
         run: |
-          git config --local user.email "seyyedsoroushmirzaei@protonmail.com"
-          git config --local user.name "Soroush Mirzaei"
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "github-actions"
           git add -A
           git diff-index --quiet HEAD || (git commit -a -m "Updated $(TZ='Asia/Tehran' date '+%Y-%m-%d %H:%M %Z')" --allow-empty)
           
       - name: Push Changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.TG_CNFG_CLLCT }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
           
       - name: Clean Up Files
         run: |
           git checkout --orphan latest_branch
           git rm -r -f __pycache__
-          git config --local user.email "seyyedsoroushmirzaei@protonmail.com"
-          git config --local user.name "Soroush Mirzaei"
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "github-actions"
           git add -A
           git commit -am "Updated $(TZ='Asia/Tehran' date '+%Y-%m-%d %H:%M %Z')"
           git branch -D main
           git branch -m main
           git push -f origin main
-          
-      - name: Push Changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ secrets.TG_CNFG_CLLCT }}
-          branch: main
